@@ -102,7 +102,7 @@ const interiorPoint = m => { const a=Math.random()*Math.PI*2,r=rand(8,m); return
 let nowMs = Date.now();
 let rooms = [];
 let roomSeq = 1;
-function makeRoom(){ const R={ id:roomSeq++, ents:new Map(), orbs:[], projs:[], traps:[], events:[], nextId:1 }; for(let i=0;i<26;i++) addOrb(R); return R; }
+function makeRoom(){ const R={ id:roomSeq++, ents:new Map(), orbs:[], projs:[], traps:[], events:[], nextId:1 }; for(let i=0;i<16;i++) addOrb(R); return R; }
 function humansIn(R){ let h=0; for(const e of R.ents.values()) if(!e.bot)h++; return h; }
 function assignRoom(){ for(const r of rooms){ if(humansIn(r)<CAP_HUMANS) return r; } const r=makeRoom(); rooms.push(r); return r; }
 function addOrb(R,x,z){ R.orbs.push({ x:x===undefined?rand(-BND,BND):x, z:z===undefined?rand(-BND,BND):z }); }
@@ -126,7 +126,7 @@ function spawnEnt(R,o){
 }
 function ensureBots(R){
   let bots=0,hum=0; for(const e of R.ents.values()) e.bot?bots++:hum++;
-  const target=Math.max(7,Math.min(28,hum+5)); let total=bots+hum;
+  const target=Math.max(5,Math.min(10,hum+3)); let total=bots+hum;
   while(total<target){ spawnEnt(R,{bot:true,points:Math.floor(rand(0,8)),name:botNames[Math.floor(rand(0,botNames.length))],color:botCols[Math.floor(rand(0,botCols.length))]}); total++; }
   if(total>target){ let rm=total-target; for(const e of [...R.ents.values()]){ if(rm<=0)break; if(e.bot){R.ents.delete(e.id);rm--;} } }
 }
@@ -165,7 +165,7 @@ function kill(a,t){
   if(a.prof) gainRewards(a.prof,3+Math.floor(stolen*0.5),3+Math.floor(stolen*0.5));
   if(t.prof) gainRewards(t.prof,1,Math.floor(t.points*0.3)+1);
   a.room.events.push({k:'kill',by:a.name,who:t.name,amt:stolen}); gainMatchXp(a,3);
-  const drops=Math.min(18,3+Math.floor(t.points*0.5));for(let k=0;k<drops&&a.room.orbs.length<90;k++)addOrb(a.room,t.x+rand(-3,3),t.z+rand(-3,3));
+  const drops=Math.min(10,3+Math.floor(t.points*0.4));for(let k=0;k<drops&&a.room.orbs.length<90;k++)addOrb(a.room,t.x+rand(-3,3),t.z+rand(-3,3));
   t.points=0; t.tier=0; t.attr={hp:0,dmg:0,spd:0,regen:0,life:0,reach:0}; t.pts=0; t.matchXp=0; t.matchLvl=1; t.minions=[]; t.swarmAt=0; t.clsKey=t.baseKey; t.cls=CLASSES[t.baseKey]; if(!t.cosColor)t.color=t.cls.col;
   const p=interiorPoint(34); t.x=p.x;t.z=p.z;t.tx=t.x;t.tz=t.z; t.hp=maxHp(t); t.safe=nowMs+1500; t.vanishUntil=0;t.dashUntil=0;t.chargeUntil=0; t.evoWait=nowMs+rand(3000,9000);
 }
@@ -187,7 +187,7 @@ function simRoom(R,dt){
   for(const a of arr){ if(a.safe>nowMs)continue; const ar=reachRad(a); for(const t of arr){ if(a===t)continue; if(t.safe>nowMs||t.hidden||t.vanishUntil>nowMs)continue; if(dist(a,t)<(ar+radOf(t))*1.12){ let dmg=20*a.cls.dmg*(0.7+scaleOf(a.points,a.cls)*0.3)*dt,kbm=1; if(a.chargeUntil>nowMs){dmg*=1.5;kbm=3;} t.hp-=dmg;t.lastHit=nowMs; const dx=t.x-a.x,dz=t.z-a.z,dd=Math.hypot(dx,dz)||1,kb=0.12*a.cls.dmg/(0.6+scaleOf(t.points,t.cls)*0.3)*kbm; t.x+=dx/dd*kb;t.z+=dz/dd*kb;clampPos(t); if(t.hp<=0)kill(a,t); } } }
   for(const e of R.ents.values()){ const mh=maxHp(e); if(e.hp>mh)e.hp=mh; if(nowMs-e.lastHit>2000)e.hp=Math.min(mh,e.hp+16*dt*(1+((e.attr&&e.attr.regen)||0)*0.25)); }
   updateMinions(R,dt); updateTraps(R,dt); autoFire(R,dt);
-  while(R.orbs.length<24)addOrb(R);
+  while(R.orbs.length<16)addOrb(R);
 }
 function snapshot(R){
   const es=[];
