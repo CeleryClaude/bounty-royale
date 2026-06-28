@@ -1,0 +1,18 @@
+{
+  "name": "bounty-royale",
+  "version": "1.0.0",
+  "description": "Bounty Royale - 3D stick-figure melee .io game (browser, real-time multiplayer)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0",
+    "stripe": "^16.12.0"
+  }
+}

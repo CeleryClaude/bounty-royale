@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: bounty-royale
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
